@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        {% load static %}
+        <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1, maximum-scale=1">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/sjcl/1.0.0/sjcl.min.js"></script>
+        <script src="{% static "js/easy_password.js" %}"></script>
+    </head>
+
+    <body>
+
+
+        <script>
+            public_infos = {
+                name: 'amazon.com/aws',
+                numbers: true,
+                uppers: true,
+                specials: true,
+            }
+            console.log(easy_password.v1.get_password(public_infos, "best password ever"))
+        </script>
+    </body>
+</html>

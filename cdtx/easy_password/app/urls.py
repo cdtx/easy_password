@@ -18,6 +18,7 @@ from django.contrib import admin
 from .views import *
 
 urlpatterns = [
-    url(r'^password-list/', PasswordEntryList.as_view()),
-    url(r'^password/(?P<id>\d+)/', PasswordEntryDetails.as_view()),
+    url(r'^$', index),
+    url(r'^api/password-list/', PasswordEntryList.as_view()),
+    url(r'^api/password/(?P<id>\d+)/', PasswordEntryDetails.as_view()),
 ]
