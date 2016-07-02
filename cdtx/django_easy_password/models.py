@@ -1,8 +1,8 @@
 from django.db import models
 
 class PasswordEntry(models.Model):
-    site_name = models.CharField(max_length=50)
-    password_size = models.PositiveIntegerField(default=8)
-    has_uppercase = models.BooleanField(default=False)
-    has_number = models.BooleanField(default=False)
-    has_specialchar = models.BooleanField(default=False)
+    name = models.CharField(max_length=50)
+    size = models.PositiveIntegerField(default=8)
+    numbers = models.BooleanField(default=True)
+    uppers = models.BooleanField(default=True)
+    specials = models.BooleanField(default=True)
