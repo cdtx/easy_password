@@ -1,6 +1,13 @@
+/* Generic material to manage class inheritance */
+
+/* Function to be used after a class's constructor declaration */
+/* to declare inheritance */
+var inheritsFrom = function(child, parent) {
+    child.prototype = Object.create(parent.prototype);
+}
+
 // namespace
 var easy_password = {};
-easy_password.v1 = {};
 
 var byteArray = function(integer) {
     result = [0, 0, 0, 0];
@@ -11,94 +18,101 @@ var byteArray = function(integer) {
     return result; 
 }
 
-easy_password.v1.get_password = function(public_infos, key) {
-    return easy_password.v1.generate(public_infos, key);
+// Class V1
+easy_password.v1 = function() {
+
 }
+$.extend(easy_password.v1.prototype, {
+    get_password : function(public_infos, key) {
+        return this.generate(public_infos, key);
+    },
 
-easy_password.v1.generate = function(public_infos, key) {
-    // Create the unique string from public infos + key
-    input = public_infos.name + public_infos.numbers + public_infos.uppers + public_infos.specials + key;
-    hashChar = input;
+    generate : function(public_infos, key) {
+        // Create the unique string from public infos + key
+        input = public_infos.name + public_infos.numbers + public_infos.uppers + public_infos.specials + key;
+        hashChar = input;
 
-    do {
-        // Hash the infos
-        hash = sjcl.hash.sha256.hash(hashChar);
-        // Create a 32 bytes array from the hash result
-        hashChar = [];
-        for(var i=0; i<hash.length; i++) {
-            hashChar = hashChar.concat(byteArray(hash[i]));
+        do {
+            // Hash the infos
+            hash = sjcl.hash.sha256.hash(hashChar);
+            // Create a 32 bytes array from the hash result
+            hashChar = [];
+            for(var i=0; i<hash.length; i++) {
+                hashChar = hashChar.concat(byteArray(hash[i]));
+            }
+            this.adjust(hashChar, public_infos);
+
+        } while(this.check_criterias(hashChar, public_infos) == false);
+        
+        // Generate a string with it
+        result = String.fromCharCode.apply(null, hashChar)
+        return result;
+            
+    },
+
+    adjust : function(inputs, public_infos) {
+        for(var i=0 ; i<inputs.length ; i++) {
+            // Only visible chars
+            inputs[i] = (inputs[i] % (0x7E - 0x21)) + 0x21;
+            // No specials
+            if(!public_infos.specials) {
+                if( (inputs[i] >= 0x21) && (inputs[i] <= 0x2F) ) {
+                    inputs[i] = inputs[i] - 0x21 + 0x41;
+                }
+                else if ( (inputs[i] >= 0x3A) && (inputs[i] <= 0x40) ) {
+                    inputs[i] = inputs[i] - 0x3A + 0x30;
+                }
+                else if ( (inputs[i] >= 0x5B) && (inputs[i] <= 0x60) ) {
+                    inputs[i] = inputs[i] - 0x5B + 0x61;
+                }
+                else if ( (inputs[i] >= 0x7B) && (inputs[i] <= 0x7E) ) {
+                    inputs[i] = inputs[i] - 0x7B + 0x67;
+                }
+            }
+            // No numbers
+            if(!public_infos.numbers) {
+                if((inputs[i] >= 0x30) && (inputs[i] <= 0x39)) {
+                    inputs[i] = inputs[i] - 0x30 + 0x41;
+                }
+            }
+            // No uppercase
+            if(!public_infos.uppers) {
+                if((inputs[i] >= 0x41) && (inputs[i] <= 0x5A)) {
+                    inputs[i] = inputs[i] - 0x41 + 0x61;
+                }
+            }
         }
-        easy_password.v1.adjust(hashChar, public_infos);
+    },
 
-    } while(easy_password.v1.check_criterias(hashChar, public_infos) == false);
-    
-    // Generate a string with it
-    result = String.fromCharCode.apply(null, hashChar)
-    return result;
-}
-
-easy_password.v1.adjust = function(inputs, public_infos) {
-    for(var i=0 ; i<inputs.length ; i++) {
-        // Only visible chars
-        inputs[i] = (inputs[i] % (0x7E - 0x21)) + 0x21;
-        // No specials
-        if(!public_infos.specials) {
+    check_criterias : function(inputs, public_infos) {
+        var numbers=false, uppers=false, specials=false;
+        for(var i=0 ; i<inputs.length ; i++) {
+            // Specials
             if( (inputs[i] >= 0x21) && (inputs[i] <= 0x2F) ) {
-                inputs[i] = inputs[i] - 0x21 + 0x41;
+                specials = true;
             }
             else if ( (inputs[i] >= 0x3A) && (inputs[i] <= 0x40) ) {
-                inputs[i] = inputs[i] - 0x3A + 0x30;
+                specials = true;
             }
             else if ( (inputs[i] >= 0x5B) && (inputs[i] <= 0x60) ) {
-                inputs[i] = inputs[i] - 0x5B + 0x61;
+                specials = true;
             }
             else if ( (inputs[i] >= 0x7B) && (inputs[i] <= 0x7E) ) {
-                inputs[i] = inputs[i] - 0x7B + 0x67;
+                specials = true;
             }
-        }
-        // No numbers
-        if(!public_infos.numbers) {
+            // Numbers
             if((inputs[i] >= 0x30) && (inputs[i] <= 0x39)) {
-                inputs[i] = inputs[i] - 0x30 + 0x41;
+                numbers = true;
             }
-        }
-        // No uppercase
-        if(!public_infos.uppers) {
+            // Uppercase
             if((inputs[i] >= 0x41) && (inputs[i] <= 0x5A)) {
-                inputs[i] = inputs[i] - 0x41 + 0x61;
+                uppers = true;
             }
         }
-    }
-}
-
-easy_password.v1.check_criterias = function(inputs, public_infos) {
-    var numbers=false, uppers=false, specials=false;
-    for(var i=0 ; i<inputs.length ; i++) {
-        // Specials
-        if( (inputs[i] >= 0x21) && (inputs[i] <= 0x2F) ) {
-            specials = true;
+        if( (public_infos.numbers ^ numbers) || (public_infos.uppers ^ uppers) || (public_infos.specials ^ specials) ) {
+            return false;
         }
-        else if ( (inputs[i] >= 0x3A) && (inputs[i] <= 0x40) ) {
-            specials = true;
-        }
-        else if ( (inputs[i] >= 0x5B) && (inputs[i] <= 0x60) ) {
-            specials = true;
-        }
-        else if ( (inputs[i] >= 0x7B) && (inputs[i] <= 0x7E) ) {
-            specials = true;
-        }
-        // Numbers
-        if((inputs[i] >= 0x30) && (inputs[i] <= 0x39)) {
-            numbers = true;
-        }
-        // Uppercase
-        if((inputs[i] >= 0x41) && (inputs[i] <= 0x5A)) {
-            uppers = true;
-        }
-    }
-    if( (public_infos.numbers ^ numbers) || (public_infos.uppers ^ uppers) || (public_infos.specials ^ specials) ) {
-        return false;
-    }
-    return true;
-}
+        return true;
+    },
+})
 
