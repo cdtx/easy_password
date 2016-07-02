@@ -8,7 +8,7 @@ setup(
     classifiers=[
         'Programming Language :: Python :: 3.4',
     ],
-    packages=['cdtx.easy_password'],
+    packages=['cdtx.django_easy_password'],
     install_requires = ['djangorestframework']
 )
 
