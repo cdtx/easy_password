@@ -7,9 +7,9 @@ from .serializers import *
 def index(self):
     return render_to_response('index.html')
 
-class PasswordEntryList(generics.ListCreateAPIView):
+class PasswordEntryList(generics.ListAPIView):
     queryset = PasswordEntry.objects.all()
-    serializer_class = PasswordEntrySerializer
+    serializer_class = PasswordNameSerializer
 
 class PasswordEntryDetails(generics.RetrieveUpdateAPIView):
     queryset = PasswordEntry.objects.all()

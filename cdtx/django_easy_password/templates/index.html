@@ -3,22 +3,90 @@
     <head>
         {% load static %}
         <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1, maximum-scale=1">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
         <script src="//ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/sjcl/1.0.0/sjcl.min.js"></script>
         <script src="{% static "js/easy_password.js" %}"></script>
     </head>
 
     <body>
-
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-xs-12 col-md-8 col-md-offset-2">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6">
+                            <div id="passwords-names" class="list-group">
+                                <button type="button" class="list-group-item hidden"></button>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6">
+                            <div class="input-group">
+                                <input id="passwordbox-name" type="text" readonly>
+                                <input id="passwordbox-key" type="password" placeholder="Secret key">
+                            </div>
+                            <div class="input-group">
+                                <button type="button" class="btn btn-default" onclick="generatePassword()">Generate</button>
+                                <input id="passwordbox-generated" type="text" placeholder="Generated password" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <script>
-            public_infos = {
-                name: 'amazon.com/aws',
-                numbers: true,
-                uppers: true,
-                specials: true,
+            $(document).on('ready', function() {
+                cleanPasswordsList();
+                cleanPasswordBox();
+            })
+
+            var currentPasswordInfos = {};
+
+            var cleanPasswordsList = function() {
+                $('#passwords-names button').not(':first').remove();
             }
-            pass = new easy_password.v1();
-            console.log(pass.get_password(public_infos, "best password ever"))
+            var fillPasswordsList = function(list) {
+                cleanPasswordsList();
+                $.each(list, function(index, value) {
+                    item = $('#passwords-names button:first').clone();
+                    item.removeClass('hidden');
+                    item.text(value.name);
+                    item.attr('passId', value.id);
+                    $('#passwords-names').append(item);
+                });
+                $('#passwords-names button').on('click', function(event){
+                    fillPasswordBox($(event.target).attr('passId'));
+                });
+            }
+
+            var cleanPasswordBox = function() {
+                $('#passwordbox-name').val('');
+                $('#passwordbox-key').val('');
+                $('#passwordbox-generated').val('');
+            };
+            var fillPasswordBox = function(id) {
+                cleanPasswordBox();
+                easy_password.getPassword(id)
+                    .done(function(data, textStatus, jqXHR) {
+                        currentPasswordInfos = data;
+                        $('#passwordbox-name').val(data.name);
+                    })
+                    .fail(function(jquery, textStatus, errorThrown) {
+                    })
+            }
+
+            easy_password.getPasswords()
+                .done(function(data, textStatus, jqXHR) {
+                    fillPasswordsList(data.results);
+                })
+                .fail(function(jquery, textStatus, errorThrown) {
+                })
+
+            var generatePassword = function() {
+                pass = new easy_password.v1();
+                $('#passwordbox-generated').val(pass.get_password(currentPasswordInfos, $('#passwordbox-key').val()));
+            }
         </script>
     </body>
 </html>

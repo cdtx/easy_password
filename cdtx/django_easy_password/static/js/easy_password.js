@@ -18,13 +18,29 @@ var byteArray = function(integer) {
     return result; 
 }
 
+easy_password.getPasswords = function() {
+    return $.ajax({
+        url: 'api/password-list/',
+        type: 'GET',
+        contentType : 'application/json',
+    })
+}
+
+easy_password.getPassword = function(id) {
+    return $.ajax({
+        url: 'api/password/' + id + '/',
+        type: 'GET',
+        contentType : 'application/json',
+    })
+}
+
 // Class V1
 easy_password.v1 = function() {
 
 }
 $.extend(easy_password.v1.prototype, {
     get_password : function(public_infos, key) {
-        return this.generate(public_infos, key);
+        return this.generate(public_infos, key).substring(0, public_infos.size)
     },
 
     generate : function(public_infos, key) {
