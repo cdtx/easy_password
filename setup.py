@@ -1,4 +1,13 @@
+import os
 from setuptools import setup
+
+def recursive(paths, rel='.'):
+    l = []
+    for path in paths:
+        for x, y, z in os.walk(os.path.join(rel, path)):
+            if z:
+                l.append(os.path.relpath(os.path.join(x, '*'), rel))
+    return l
 
 setup(
     name='easy_password',
@@ -9,7 +18,7 @@ setup(
         'Programming Language :: Python :: 3.4',
     ],
     packages=['cdtx.django_easy_password'],
-    package_data={'cdtx.django_easy_password': ['templates/*',]},
+    package_data={'cdtx.django_easy_password': recursive(['templates', 'static'], rel='cdtx/django_easy_password')},
     install_requires = ['djangorestframework']
 )
 
