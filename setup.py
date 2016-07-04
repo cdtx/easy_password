@@ -9,6 +9,7 @@ setup(
         'Programming Language :: Python :: 3.4',
     ],
     packages=['cdtx.django_easy_password'],
+    package_data={'cdtx.django_easy_password': ['templates/*',]},
     install_requires = ['djangorestframework']
 )
 
