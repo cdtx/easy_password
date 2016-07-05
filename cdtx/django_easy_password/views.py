@@ -5,7 +5,7 @@ from rest_framework import generics
 from .serializers import *
 
 def index(self):
-    return render_to_response('index.html')
+    return render_to_response('django_easy_password_index.html')
 
 class PasswordEntryList(generics.ListAPIView):
     queryset = PasswordEntry.objects.all()
