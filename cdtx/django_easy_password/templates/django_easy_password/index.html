@@ -10,6 +10,13 @@
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/sjcl/1.0.0/sjcl.min.js"></script>
         <script src="{% static "js/easy_password.js" %}"></script>
+
+        <style>
+            .crossed {
+                text-decoration: line-through;
+            }
+        </style>
+
     </head>
 
     <body>
@@ -28,11 +35,21 @@
                             </div>
                         </div>
                         <div class="col-xs-12 col-sm-6">
-                            <div class="input-group">
-                                <input id="passwordbox-name" type="text" readonly>
-                                <input id="passwordbox-key" type="password" placeholder="Secret key">
+                            <div class="row">
+                                <div class="col-xs-6">
+                                    <div class="input-group">
+                                        <input id="passwordbox-name" type="text" readonly>
+                                        <input id="passwordbox-size" type="text" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-xs-6">
+                                    <p id="passwordbox-has-numbers">Numbers</p> 
+                                    <p id="passwordbox-has-uppers">Uppers</p> 
+                                    <p id="passwordbox-has-specials">Specials</p> 
+                                </div>
                             </div>
-                            <div class="input-group">
+                            <div class="text-center input-group">
+                                <input id="passwordbox-key" type="password" placeholder="Secret key">
                                 <button type="button" class="btn btn-default" onclick="generatePassword()">Generate</button>
                                 <input id="passwordbox-generated" type="text" placeholder="Generated password" readonly>
                             </div>
@@ -86,16 +103,9 @@
             </div>
             <script>
 $(document).on('ready', function() {
-        cleanPasswordsList();
-        cleanPasswordBox();
-
-        easy_password.getPasswords()
-        .done(function(data, textStatus, jqXHR) {
-            fillPasswordsList(data.results);
-            })
-        .fail(function(jquery, textStatus, errorThrown) {
-            })
-        })
+    cleanPasswordBox();
+    fillPasswordsList();
+})
 
 var currentPasswordInfos = {};
 
@@ -135,22 +145,32 @@ var showModal = function(init) {
 var cleanPasswordsList = function() {
     $('#passwords-names button').not(':first').remove();
 }
-var fillPasswordsList = function(list) {
+var fillPasswordsList = function() {
     cleanPasswordsList();
-    $.each(list, function(index, value) {
-        item = $('#passwords-names button:first').clone();
-        item.removeClass('hidden');
-        item.text(value.name);
-        item.attr('passId', value.id);
-        $('#passwords-names').append(item);
-    });
-    $('#passwords-names button').on('click', function(event){
-        fillPasswordBox($(event.target).attr('passId'));
-    });
+    easy_password.getPasswords()
+        .done(function(data, textStatus, jqXHR) {
+            $.each(data.results, function(index, value) {
+                item = $('#passwords-names button:first').clone();
+                item.removeClass('hidden');
+                item.text(value.name);
+                item.attr('passId', value.id);
+                $('#passwords-names').append(item);
+            });
+
+            $('#passwords-names button').on('click', function(event){
+                fillPasswordBox($(event.target).attr('passId'));
+            });
+        })
+        .fail(function(jquery, textStatus, errorThrown) {
+        })
 }
 
 var cleanPasswordBox = function() {
     $('#passwordbox-name').val('');
+    $('#passwordbox-size').val('');
+    $('#passwordbox-has-numbers').removeClass('crossed');
+    $('#passwordbox-has-uppers').removeClass('crossed');
+    $('#passwordbox-has-specials').removeClass('crossed');
     $('#passwordbox-key').val('');
     $('#passwordbox-generated').val('');
 };
@@ -158,11 +178,21 @@ var fillPasswordBox = function(id) {
     cleanPasswordBox();
     easy_password.getPassword(id)
         .done(function(data, textStatus, jqXHR) {
-                currentPasswordInfos = data;
-                $('#passwordbox-name').val(data.name);
-                })
-    .fail(function(jquery, textStatus, errorThrown) {
-            })
+            currentPasswordInfos = data;
+            $('#passwordbox-name').val(data.name);
+            $('#passwordbox-size').val(data.size);
+            if(!data.numbers) {
+                $('#passwordbox-has-numbers').addClass('crossed');
+            }
+            if(!data.uppers) {
+                $('#passwordbox-has-uppers').addClass('crossed');
+            }
+            if(!data.specials) {
+                $('#passwordbox-has-specials').addClass('crossed');
+            }
+        })
+        .fail(function(jquery, textStatus, errorThrown) {
+        })
 }
 
 var generatePassword = function() {
