@@ -111,7 +111,7 @@ $.extend(easy_password.v1.prototype, {
 
     check_criterias : function(inputs, public_infos) {
         var numbers=false, uppers=false, specials=false;
-        for(var i=0 ; i<inputs.length ; i++) {
+        for(var i=0 ; i<public_infos.size ; i++) {
             // Specials
             if( (inputs[i] >= 0x21) && (inputs[i] <= 0x2F) ) {
                 specials = true;
