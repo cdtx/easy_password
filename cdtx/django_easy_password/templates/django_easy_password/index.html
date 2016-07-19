@@ -41,66 +41,134 @@
                 </div>
             </div>
         </div>
-        <script>
-            $(document).on('ready', function() {
-                cleanPasswordsList();
-                cleanPasswordBox();
+        <div id="modal-create-password" class="modal fade" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <p>Create password</p>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-xs-6">
+                                <div class="input-group">
+                                    <div class="row">
+                                        <label class="col-xs-2">Name</label>
+                                        <div class="col-xs-10">
+                                            <input name="name" type="text" class="form-control">
+                                        </div>
+                                        <label class="col-xs-2">Size</label>
+                                        <div class="col-xs-10">
+                                            <input name="size" type="number" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-6">
+                                <div class="input-group">
+                                    <div class="checkbox">
+                                        <label><input type="checkbox" name="numbers">Numbers</label>
+                                    </div>
+                                    <div class="checkbox">
+                                        <label><input type="checkbox" name="uppers">Uppers</label>
+                                    </div>
+                                    <div class="checkbox">
+                                        <label><input type="checkbox" name="specials">Labels</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <button id="modal-create-password-save" type="button" class="btn btn-primary">Save</button>
+                    </div>
+                    </div>
+            </div>
+            <script>
+$(document).on('ready', function() {
+        cleanPasswordsList();
+        cleanPasswordBox();
+
+        easy_password.getPasswords()
+        .done(function(data, textStatus, jqXHR) {
+            fillPasswordsList(data.results);
             })
+        .fail(function(jquery, textStatus, errorThrown) {
+            })
+        })
 
-            var currentPasswordInfos = {};
+var currentPasswordInfos = {};
 
 
-            var createPassword = function() {
-                console.log('feu')
-            }
+var createPassword = function() {
+    showModal({});
+}
+var showModal = function(init) {
+    $('#modal-create-password input[name="name"]').val(init.name || '');
+    $('#modal-create-password input[name="size"]').val(init.size || 8);
 
-            var cleanPasswordsList = function() {
-                $('#passwords-names button').not(':first').remove();
-            }
-            var fillPasswordsList = function(list) {
-                cleanPasswordsList();
-                $.each(list, function(index, value) {
-                    item = $('#passwords-names button:first').clone();
-                    item.removeClass('hidden');
-                    item.text(value.name);
-                    item.attr('passId', value.id);
-                    $('#passwords-names').append(item);
-                });
-                $('#passwords-names button').on('click', function(event){
-                    fillPasswordBox($(event.target).attr('passId'));
-                });
-                $('.btn-edit-entry').on('click', function(event){
-                    console.log(event.parentNode.parentNode.passId);
-                });
-            }
+    $('#modal-create-password input[name="numbers"]').prop('checked', init.numbers || true);
+    $('#modal-create-password input[name="uppers"]').prop('checked', init.uppers || true);
+    $('#modal-create-password input[name="specials"]').prop('checked', init.specials || true);
 
-            var cleanPasswordBox = function() {
-                $('#passwordbox-name').val('');
-                $('#passwordbox-key').val('');
-                $('#passwordbox-generated').val('');
-            };
-            var fillPasswordBox = function(id) {
-                cleanPasswordBox();
-                easy_password.getPassword(id)
-                    .done(function(data, textStatus, jqXHR) {
-                        currentPasswordInfos = data;
-                        $('#passwordbox-name').val(data.name);
-                    })
-                    .fail(function(jquery, textStatus, errorThrown) {
-                    })
-            }
+    $('#modal-create-password-save').on('click', function(event) {
+        data = {};
+        mod = $('#modal-create-password');
+        data.name = mod.find('input[name="name"]').val();
+        data.size = mod.find('input[name="size"]').val();
 
-            easy_password.getPasswords()
-                .done(function(data, textStatus, jqXHR) {
-                    fillPasswordsList(data.results);
+        data.numbers = mod.find('input[name="numbers"]').prop('checked');
+        data.uppers = mod.find('input[name="uppers"]').prop('checked');
+        data.specials = mod.find('input[name="specials"]').prop('checked');
+        easy_password.createPassword(data)
+            .done(function( data, textStatus, jqXHR ) {
+                $('#modal-create-password').modal('hide');
+            })
+            .fail(function( jqXHR, textStatus, errorThrown ) {
+                console.error(textStatus);
+            })
+    });
+
+    $('#modal-create-password').modal('show');
+}
+
+var cleanPasswordsList = function() {
+    $('#passwords-names button').not(':first').remove();
+}
+var fillPasswordsList = function(list) {
+    cleanPasswordsList();
+    $.each(list, function(index, value) {
+        item = $('#passwords-names button:first').clone();
+        item.removeClass('hidden');
+        item.text(value.name);
+        item.attr('passId', value.id);
+        $('#passwords-names').append(item);
+    });
+    $('#passwords-names button').on('click', function(event){
+        fillPasswordBox($(event.target).attr('passId'));
+    });
+}
+
+var cleanPasswordBox = function() {
+    $('#passwordbox-name').val('');
+    $('#passwordbox-key').val('');
+    $('#passwordbox-generated').val('');
+};
+var fillPasswordBox = function(id) {
+    cleanPasswordBox();
+    easy_password.getPassword(id)
+        .done(function(data, textStatus, jqXHR) {
+                currentPasswordInfos = data;
+                $('#passwordbox-name').val(data.name);
                 })
-                .fail(function(jquery, textStatus, errorThrown) {
-                })
+    .fail(function(jquery, textStatus, errorThrown) {
+            })
+}
 
-            var generatePassword = function() {
-                pass = new easy_password.v1();
-                $('#passwordbox-generated').val(pass.get_password(currentPasswordInfos, $('#passwordbox-key').val()));
-            }
+var generatePassword = function() {
+    pass = new easy_password.v1();
+    $('#passwordbox-generated').val(pass.get_password(currentPasswordInfos, $('#passwordbox-key').val()));
+}
         </script>
-    </body>
-</html>
+        </body>
+        </html>

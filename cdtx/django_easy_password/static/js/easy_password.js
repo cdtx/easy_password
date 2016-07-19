@@ -34,6 +34,15 @@ easy_password.getPassword = function(id) {
     })
 }
 
+easy_password.createPassword = function(params) {
+    return $.ajax({
+        url: 'api/password-list/',
+        data: JSON.stringify(params),
+        type: 'POST',
+        contentType : 'application/json',
+    })
+}
+
 // Class V1
 easy_password.v1 = function() {
 
