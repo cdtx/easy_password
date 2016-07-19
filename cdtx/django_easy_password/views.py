@@ -11,7 +11,7 @@ class PasswordEntryList(generics.ListCreateAPIView):
     queryset = PasswordEntry.objects.all()
     serializer_class = PasswordEntrySerializer
 
-class PasswordEntryDetails(generics.RetrieveUpdateAPIView):
+class PasswordEntryDetails(generics.RetrieveAPIView):
     queryset = PasswordEntry.objects.all()
     lookup_field = 'id'
     serializer_class = PasswordEntrySerializer

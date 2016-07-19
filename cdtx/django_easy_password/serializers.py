@@ -5,5 +5,5 @@ from .models import PasswordEntry
 class PasswordEntrySerializer(serializers.ModelSerializer):
     class Meta:
         model = PasswordEntry
-        fields = ('name', 'size', 'numbers', 'uppers', 'specials')
+        fields = ('id', 'name', 'size', 'numbers', 'uppers', 'specials')
 
