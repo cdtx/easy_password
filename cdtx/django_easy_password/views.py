@@ -7,9 +7,9 @@ from .serializers import *
 def index(self):
     return render_to_response('django_easy_password/index.html')
 
-class PasswordEntryList(generics.ListAPIView):
+class PasswordEntryList(generics.ListCreateAPIView):
     queryset = PasswordEntry.objects.all()
-    serializer_class = PasswordNameSerializer
+    serializer_class = PasswordEntrySerializer
 
 class PasswordEntryDetails(generics.RetrieveUpdateAPIView):
     queryset = PasswordEntry.objects.all()
