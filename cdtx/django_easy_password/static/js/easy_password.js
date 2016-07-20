@@ -106,11 +106,17 @@ $.extend(easy_password.v1.prototype, {
                     inputs[i] = inputs[i] - 0x41 + 0x61;
                 }
             }
+            // No lowercase
+            if(!public_infos.lowers) {
+                if((inputs[i] >= 0x61) && (inputs[i] <= 0x7A)) {
+                    inputs[i] = inputs[i] - 0x61 + 0x41;
+                }
+            }
         }
     },
 
     check_criterias : function(inputs, public_infos) {
-        var numbers=false, uppers=false, specials=false;
+        var numbers=false, uppers=false, lowers=false, specials=false;
         for(var i=0 ; i<public_infos.size ; i++) {
             // Specials
             if( (inputs[i] >= 0x21) && (inputs[i] <= 0x2F) ) {
@@ -133,8 +139,12 @@ $.extend(easy_password.v1.prototype, {
             if((inputs[i] >= 0x41) && (inputs[i] <= 0x5A)) {
                 uppers = true;
             }
+            // Lowercase
+            if((inputs[i] >= 0x71) && (inputs[i] <= 0x7A)) {
+                lowers = true;
+            }
         }
-        if( (public_infos.numbers ^ numbers) || (public_infos.uppers ^ uppers) || (public_infos.specials ^ specials) ) {
+        if( (public_infos.numbers ^ numbers) || (public_infos.uppers ^ uppers) || (public_infos.lowers ^ lowers) || (public_infos.specials ^ specials)) {
             return false;
         }
         return true;

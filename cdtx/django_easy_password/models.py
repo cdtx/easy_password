@@ -5,4 +5,5 @@ class PasswordEntry(models.Model):
     size = models.PositiveIntegerField(default=8)
     numbers = models.BooleanField(default=True)
     uppers = models.BooleanField(default=True)
+    lowers = models.BooleanField(default=True)
     specials = models.BooleanField(default=True)
