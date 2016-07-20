@@ -22,17 +22,28 @@
     <body>
         <div class="container-fluid">
             <div class="row">
+                <div class="col-xs-12">
+                    {% if user.is_authenticated %}
+                    <button class="pull-right btn">Logout</button>
+                    {% else %}
+                    <button class="pull-right btn">Login</button>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row">
                 <div class="col-xs-12 col-md-8 col-md-offset-2">
                     <div class="row">
                         <div class="col-xs-12 col-sm-6">
                             <div id="passwords-names" class="list-group">
                                 <button type="button" class="list-group-item hidden"></button>
                             </div>
+                            {% if user.is_authenticated %}
                             <div class="text-center">
                                 <a href="#" onclick="createPassword()">
                                     <i class="fa fa-plus-circle fa-3x" aria-hidden="true"></i>
                                 </a>
                             </div>
+                            {% endif %}
                         </div>
                         <div class="col-xs-12 col-sm-6">
                             <div class="row">
@@ -42,9 +53,12 @@
                                         <input id="passwordbox-size" type="text" readonly>
                                     </div>
                                 </div>
-                                <div class="col-xs-6">
-                                    <p id="passwordbox-has-numbers">Numbers</p> 
+                                <div class="col-xs-3">
                                     <p id="passwordbox-has-uppers">Uppers</p> 
+                                    <p id="passwordbox-has-numbers">Numbers</p> 
+                                </div>
+                                <div class="col-xs-3">
+                                    <p id="passwordbox-has-lowers">Lowers</p> 
                                     <p id="passwordbox-has-specials">Specials</p> 
                                 </div>
                             </div>
@@ -89,6 +103,9 @@
                                         <label><input type="checkbox" name="uppers">Uppers</label>
                                     </div>
                                     <div class="checkbox">
+                                        <label><input type="checkbox" name="lowers">Lowers</label>
+                                    </div>
+                                    <div class="checkbox">
                                         <label><input type="checkbox" name="specials">Labels</label>
                                     </div>
                                 </div>
@@ -119,6 +136,7 @@ var showModal = function(init) {
 
     $('#modal-create-password input[name="numbers"]').prop('checked', init.numbers || true);
     $('#modal-create-password input[name="uppers"]').prop('checked', init.uppers || true);
+    $('#modal-create-password input[name="lowers"]').prop('checked', init.lowers || true);
     $('#modal-create-password input[name="specials"]').prop('checked', init.specials || true);
 
     $('#modal-create-password-save').on('click', function(event) {
@@ -129,6 +147,7 @@ var showModal = function(init) {
 
         data.numbers = mod.find('input[name="numbers"]').prop('checked');
         data.uppers = mod.find('input[name="uppers"]').prop('checked');
+        data.lowers = mod.find('input[name="lowers"]').prop('checked');
         data.specials = mod.find('input[name="specials"]').prop('checked');
         easy_password.createPassword(data)
             .done(function( data, textStatus, jqXHR ) {
@@ -170,6 +189,7 @@ var cleanPasswordBox = function() {
     $('#passwordbox-size').val('');
     $('#passwordbox-has-numbers').removeClass('crossed');
     $('#passwordbox-has-uppers').removeClass('crossed');
+    $('#passwordbox-has-lowers').removeClass('crossed');
     $('#passwordbox-has-specials').removeClass('crossed');
     $('#passwordbox-key').val('');
     $('#passwordbox-generated').val('');
@@ -186,6 +206,9 @@ var fillPasswordBox = function(id) {
             }
             if(!data.uppers) {
                 $('#passwordbox-has-uppers').addClass('crossed');
+            }
+            if(!data.lowers) {
+                $('#passwordbox-has-lowers').addClass('crossed');
             }
             if(!data.specials) {
                 $('#passwordbox-has-specials').addClass('crossed');
