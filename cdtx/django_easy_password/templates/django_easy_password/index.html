@@ -24,9 +24,9 @@
             <div class="row">
                 <div class="col-xs-12">
                     {% if user.is_authenticated %}
-                    <button class="pull-right btn">Logout</button>
+                    <a class="pull-right btn" href="/admin/logout/?next=/easy_password">Logout</a>
                     {% else %}
-                    <button class="pull-right btn">Login</button>
+                    <a class="btn pull-right btn" href="/admin/login/?next=/easy_password">Login</a>
                     {% endif %}
                 </div>
             </div>
@@ -116,112 +116,155 @@
                         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                         <button id="modal-create-password-save" type="button" class="btn btn-primary">Save</button>
                     </div>
-                    </div>
+                </div>
             </div>
+            
             <script>
-$(document).on('ready', function() {
-    cleanPasswordBox();
-    fillPasswordsList();
-})
+            // All REST PUT/DELETE request MUST be added a valid csrf token.
+            // This functions automatically add the loaded token to all ajax
+            // headers.
 
-var currentPasswordInfos = {};
+            // Retreives a cookie from it's name, without using a plugin
+            function getCookie(name) {
+                var cookieValue = null;
+                if (document.cookie && document.cookie != '') {
+                    var cookies = document.cookie.split(';');
+                    for (var i = 0; i < cookies.length; i++) {
+                        var cookie = jQuery.trim(cookies[i]);
+                        // Does this cookie string begin with the name we want?
+                        if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+            // Does the ajax request needs to be added a csrf token
+            function csrfSafeMethod(method) {
+                // these HTTP methods do not require CSRF protection
+                return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+            }
 
-
-var createPassword = function() {
-    showModal({});
-}
-var showModal = function(init) {
-    $('#modal-create-password input[name="name"]').val(init.name || '');
-    $('#modal-create-password input[name="size"]').val(init.size || 8);
-
-    $('#modal-create-password input[name="numbers"]').prop('checked', init.numbers || true);
-    $('#modal-create-password input[name="uppers"]').prop('checked', init.uppers || true);
-    $('#modal-create-password input[name="lowers"]').prop('checked', init.lowers || true);
-    $('#modal-create-password input[name="specials"]').prop('checked', init.specials || true);
-
-    $('#modal-create-password-save').on('click', function(event) {
-        data = {};
-        mod = $('#modal-create-password');
-        data.name = mod.find('input[name="name"]').val();
-        data.size = mod.find('input[name="size"]').val();
-
-        data.numbers = mod.find('input[name="numbers"]').prop('checked');
-        data.uppers = mod.find('input[name="uppers"]').prop('checked');
-        data.lowers = mod.find('input[name="lowers"]').prop('checked');
-        data.specials = mod.find('input[name="specials"]').prop('checked');
-        easy_password.createPassword(data)
-            .done(function( data, textStatus, jqXHR ) {
-                $('#modal-create-password').modal('hide');
-            })
-            .fail(function( jqXHR, textStatus, errorThrown ) {
-                console.error(textStatus);
-            })
-    });
-
-    $('#modal-create-password').modal('show');
-}
-
-var cleanPasswordsList = function() {
-    $('#passwords-names button').not(':first').remove();
-}
-var fillPasswordsList = function() {
-    cleanPasswordsList();
-    easy_password.getPasswords()
-        .done(function(data, textStatus, jqXHR) {
-            $.each(data.results, function(index, value) {
-                item = $('#passwords-names button:first').clone();
-                item.removeClass('hidden');
-                item.text(value.name);
-                item.attr('passId', value.id);
-                $('#passwords-names').append(item);
+            // Fill ajax request header with csrf token
+            $.ajaxSetup({
+                beforeSend: function(xhr, settings) {
+                    var csrftoken = getCookie('csrftoken');
+                    if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                    }
+                }
             });
+            
+            </script>
 
-            $('#passwords-names button').on('click', function(event){
-                fillPasswordBox($(event.target).attr('passId'));
-            });
-        })
-        .fail(function(jquery, textStatus, errorThrown) {
-        })
-}
 
-var cleanPasswordBox = function() {
-    $('#passwordbox-name').val('');
-    $('#passwordbox-size').val('');
-    $('#passwordbox-has-numbers').removeClass('crossed');
-    $('#passwordbox-has-uppers').removeClass('crossed');
-    $('#passwordbox-has-lowers').removeClass('crossed');
-    $('#passwordbox-has-specials').removeClass('crossed');
-    $('#passwordbox-key').val('');
-    $('#passwordbox-generated').val('');
-};
-var fillPasswordBox = function(id) {
-    cleanPasswordBox();
-    easy_password.getPassword(id)
-        .done(function(data, textStatus, jqXHR) {
-            currentPasswordInfos = data;
-            $('#passwordbox-name').val(data.name);
-            $('#passwordbox-size').val(data.size);
-            if(!data.numbers) {
-                $('#passwordbox-has-numbers').addClass('crossed');
-            }
-            if(!data.uppers) {
-                $('#passwordbox-has-uppers').addClass('crossed');
-            }
-            if(!data.lowers) {
-                $('#passwordbox-has-lowers').addClass('crossed');
-            }
-            if(!data.specials) {
-                $('#passwordbox-has-specials').addClass('crossed');
-            }
-        })
-        .fail(function(jquery, textStatus, errorThrown) {
-        })
-}
+                <script>
+    $(document).on('ready', function() {
+        cleanPasswordBox();
+        fillPasswordsList();
+    })
 
-var generatePassword = function() {
-    pass = new easy_password.v1();
-    $('#passwordbox-generated').val(pass.get_password(currentPasswordInfos, $('#passwordbox-key').val()));
-}
-        </script>
-        </body>
-        </html>
+    var currentPasswordInfos = {};
+
+
+    var createPassword = function() {
+        showModal({});
+    }
+    var showModal = function(init) {
+        $('#modal-create-password input[name="name"]').val(init.name || '');
+        $('#modal-create-password input[name="size"]').val(init.size || 8);
+
+        $('#modal-create-password input[name="numbers"]').prop('checked', init.numbers || true);
+        $('#modal-create-password input[name="uppers"]').prop('checked', init.uppers || true);
+        $('#modal-create-password input[name="lowers"]').prop('checked', init.lowers || true);
+        $('#modal-create-password input[name="specials"]').prop('checked', init.specials || true);
+
+        $('#modal-create-password-save').on('click', function(event) {
+            data = {};
+            mod = $('#modal-create-password');
+            data.name = mod.find('input[name="name"]').val();
+            data.size = mod.find('input[name="size"]').val();
+            data.version = 1;
+
+            data.numbers = mod.find('input[name="numbers"]').prop('checked');
+            data.uppers = mod.find('input[name="uppers"]').prop('checked');
+            data.lowers = mod.find('input[name="lowers"]').prop('checked');
+            data.specials = mod.find('input[name="specials"]').prop('checked');
+            easy_password.createPassword(data)
+                .done(function( data, textStatus, jqXHR ) {
+                    $('#modal-create-password').modal('hide');
+                    fillPasswordsList();
+                })
+                .fail(function( jqXHR, textStatus, errorThrown ) {
+                    console.error(textStatus);
+                })
+        });
+
+        $('#modal-create-password').modal('show');
+    }
+
+    var cleanPasswordsList = function() {
+        $('#passwords-names button').not(':first').remove();
+    }
+    var fillPasswordsList = function() {
+        cleanPasswordsList();
+        easy_password.getPasswords()
+            .done(function(data, textStatus, jqXHR) {
+                $.each(data.results, function(index, value) {
+                    item = $('#passwords-names button:first').clone();
+                    item.removeClass('hidden');
+                    item.text(value.name);
+                    item.attr('passId', value.id);
+                    $('#passwords-names').append(item);
+                });
+
+                $('#passwords-names button').on('click', function(event){
+                    fillPasswordBox($(event.target).attr('passId'));
+                });
+            })
+            .fail(function(jquery, textStatus, errorThrown) {
+            })
+    }
+
+    var cleanPasswordBox = function() {
+        $('#passwordbox-name').val('');
+        $('#passwordbox-size').val('');
+        $('#passwordbox-has-numbers').removeClass('crossed');
+        $('#passwordbox-has-uppers').removeClass('crossed');
+        $('#passwordbox-has-lowers').removeClass('crossed');
+        $('#passwordbox-has-specials').removeClass('crossed');
+        $('#passwordbox-key').val('');
+        $('#passwordbox-generated').val('');
+    };
+    var fillPasswordBox = function(id) {
+        cleanPasswordBox();
+        easy_password.getPassword(id)
+            .done(function(data, textStatus, jqXHR) {
+                currentPasswordInfos = data;
+                $('#passwordbox-name').val(data.name);
+                $('#passwordbox-size').val(data.size);
+                if(!data.numbers) {
+                    $('#passwordbox-has-numbers').addClass('crossed');
+                }
+                if(!data.uppers) {
+                    $('#passwordbox-has-uppers').addClass('crossed');
+                }
+                if(!data.lowers) {
+                    $('#passwordbox-has-lowers').addClass('crossed');
+                }
+                if(!data.specials) {
+                    $('#passwordbox-has-specials').addClass('crossed');
+                }
+            })
+            .fail(function(jquery, textStatus, errorThrown) {
+            })
+    }
+
+    var generatePassword = function() {
+        pass = new easy_password.v1();
+        $('#passwordbox-generated').val(pass.get_password(currentPasswordInfos, $('#passwordbox-key').val()));
+    }
+            </script>
+            </body>
+            </html>
