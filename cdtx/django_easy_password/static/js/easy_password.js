@@ -48,6 +48,13 @@ easy_password.v1 = function(public_infos) {
     this.data = public_infos || {};
 }
 $.extend(easy_password.v1.prototype, {
+    destroy : function() {
+        return $.ajax({
+            url:'api/password/' + this.data.id + '/',
+            type: 'DELETE',
+        });
+    },
+
     get_password : function(key) {
         return this.generate(key).substring(0, this.data.size)
     },

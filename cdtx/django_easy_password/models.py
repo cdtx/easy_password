@@ -6,7 +6,7 @@ class PasswordEntry(models.Model):
     user = models.ForeignKey(User)
     version = models.PositiveIntegerField()
     name = models.CharField(max_length=50)
-    size = models.PositiveIntegerField(default=8)
+    size = models.PositiveIntegerField(default=12)
     numbers = models.BooleanField(default=True)
     uppers = models.BooleanField(default=True)
     lowers = models.BooleanField(default=True)
