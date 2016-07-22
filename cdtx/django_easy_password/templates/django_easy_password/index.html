@@ -170,8 +170,7 @@
         fillPasswordsList();
     })
 
-    var currentPasswordInfos = {};
-
+    var currentPassword;
 
     var createPassword = function() {
         showModal({});
@@ -246,19 +245,20 @@
         cleanPasswordBox();
         easy_password.getPassword(id)
             .done(function(data, textStatus, jqXHR) {
-                currentPasswordInfos = data;
-                $('#passwordbox-name').val(data.name);
-                $('#passwordbox-size').val(data.size);
-                if(!data.numbers) {
+                // TODO: Use a factory based on the version
+                currentPassword = new easy_password.v1(data);
+                $('#passwordbox-name').val(currentPassword.data.name);
+                $('#passwordbox-size').val(currentPassword.data.size);
+                if(!currentPassword.data.numbers) {
                     $('#passwordbox-has-numbers').addClass('crossed');
                 }
-                if(!data.uppers) {
+                if(!currentPassword.data.uppers) {
                     $('#passwordbox-has-uppers').addClass('crossed');
                 }
-                if(!data.lowers) {
+                if(!currentPassword.data.lowers) {
                     $('#passwordbox-has-lowers').addClass('crossed');
                 }
-                if(!data.specials) {
+                if(!currentPassword.data.specials) {
                     $('#passwordbox-has-specials').addClass('crossed');
                 }
             })
@@ -267,8 +267,7 @@
     }
 
     var generatePassword = function() {
-        pass = new easy_password.v1();
-        $('#passwordbox-generated').val(pass.get_password(currentPasswordInfos, $('#passwordbox-key').val()));
+        $('#passwordbox-generated').val(currentPassword.get_password($('#passwordbox-key').val()));
     }
             </script>
             </body>

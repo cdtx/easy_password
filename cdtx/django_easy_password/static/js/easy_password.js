@@ -44,17 +44,17 @@ easy_password.createPassword = function(params) {
 }
 
 // Class V1
-easy_password.v1 = function() {
-
+easy_password.v1 = function(public_infos) {
+    this.data = public_infos || {};
 }
 $.extend(easy_password.v1.prototype, {
-    get_password : function(public_infos, key) {
-        return this.generate(public_infos, key).substring(0, public_infos.size)
+    get_password : function(key) {
+        return this.generate(this.data, key).substring(0, this.data.size)
     },
 
-    generate : function(public_infos, key) {
+    generate : function(key) {
         // Create the unique string from public infos + key
-        input = public_infos.name + public_infos.numbers + public_infos.uppers + public_infos.specials + key;
+        input = this.data.name + this.data.numbers + this.data.uppers + this.data.specials + key;
         hashChar = input;
 
         do {
@@ -65,9 +65,9 @@ $.extend(easy_password.v1.prototype, {
             for(var i=0; i<hash.length; i++) {
                 hashChar = hashChar.concat(byteArray(hash[i]));
             }
-            this.adjust(hashChar, public_infos);
+            this.adjust(hashChar);
 
-        } while(this.check_criterias(hashChar, public_infos) == false);
+        } while(this.check_criterias(hashChar) == false);
         
         // Generate a string with it
         result = String.fromCharCode.apply(null, hashChar)
@@ -75,12 +75,12 @@ $.extend(easy_password.v1.prototype, {
             
     },
 
-    adjust : function(inputs, public_infos) {
+    adjust : function(inputs) {
         for(var i=0 ; i<inputs.length ; i++) {
             // Only visible chars
             inputs[i] = (inputs[i] % (0x7E - 0x21)) + 0x21;
             // No specials
-            if(!public_infos.specials) {
+            if(!this.data.specials) {
                 if( (inputs[i] >= 0x21) && (inputs[i] <= 0x2F) ) {
                     inputs[i] = inputs[i] - 0x21 + 0x41;
                 }
@@ -95,19 +95,19 @@ $.extend(easy_password.v1.prototype, {
                 }
             }
             // No numbers
-            if(!public_infos.numbers) {
+            if(!this.data.numbers) {
                 if((inputs[i] >= 0x30) && (inputs[i] <= 0x39)) {
                     inputs[i] = inputs[i] - 0x30 + 0x41;
                 }
             }
             // No uppercase
-            if(!public_infos.uppers) {
+            if(!this.data.uppers) {
                 if((inputs[i] >= 0x41) && (inputs[i] <= 0x5A)) {
                     inputs[i] = inputs[i] - 0x41 + 0x61;
                 }
             }
             // No lowercase
-            if(!public_infos.lowers) {
+            if(!this.data.lowers) {
                 if((inputs[i] >= 0x61) && (inputs[i] <= 0x7A)) {
                     inputs[i] = inputs[i] - 0x61 + 0x41;
                 }
@@ -115,9 +115,9 @@ $.extend(easy_password.v1.prototype, {
         }
     },
 
-    check_criterias : function(inputs, public_infos) {
+    check_criterias : function(inputs) {
         var numbers=false, uppers=false, lowers=false, specials=false;
-        for(var i=0 ; i<public_infos.size ; i++) {
+        for(var i=0 ; i<this.data.size ; i++) {
             // Specials
             if( (inputs[i] >= 0x21) && (inputs[i] <= 0x2F) ) {
                 specials = true;
@@ -144,7 +144,7 @@ $.extend(easy_password.v1.prototype, {
                 lowers = true;
             }
         }
-        if( (public_infos.numbers ^ numbers) || (public_infos.uppers ^ uppers) || (public_infos.lowers ^ lowers) || (public_infos.specials ^ specials)) {
+        if( (this.data.numbers ^ numbers) || (this.data.uppers ^ uppers) || (this.data.lowers ^ lowers) || (this.data.specials ^ specials)) {
             return false;
         }
         return true;
