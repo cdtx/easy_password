@@ -49,7 +49,7 @@ easy_password.v1 = function(public_infos) {
 }
 $.extend(easy_password.v1.prototype, {
     get_password : function(key) {
-        return this.generate(this.data, key).substring(0, this.data.size)
+        return this.generate(key).substring(0, this.data.size)
     },
 
     generate : function(key) {
@@ -57,6 +57,7 @@ $.extend(easy_password.v1.prototype, {
         input = this.data.name + this.data.numbers + this.data.uppers + this.data.specials + key;
         hashChar = input;
 
+        var watchdog = Date.now();
         do {
             // Hash the infos
             hash = sjcl.hash.sha256.hash(hashChar);
@@ -66,7 +67,9 @@ $.extend(easy_password.v1.prototype, {
                 hashChar = hashChar.concat(byteArray(hash[i]));
             }
             this.adjust(hashChar);
-
+            if((Date.now() - watchdog) > 10000) { // 10seconds
+                return 'undefined';
+            }
         } while(this.check_criterias(hashChar) == false);
         
         // Generate a string with it
