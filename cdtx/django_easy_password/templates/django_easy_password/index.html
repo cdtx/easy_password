@@ -67,6 +67,11 @@
                                 <button type="button" class="btn btn-default" onclick="generatePassword()">Generate</button>
                                 <input id="passwordbox-generated" type="text" placeholder="Generated password" readonly>
                             </div>
+                            {% if user.is_authenticated %}
+                            <div class="text-center col-xs-12">
+                                <button class="btn btn-danger"><i class="fa fa-trash-o" aria-hidden="true"></i>Delete</button>
+                            </div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>

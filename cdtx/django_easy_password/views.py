@@ -13,7 +13,8 @@ class PasswordEntryList(generics.ListCreateAPIView):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
     serializer_class = PasswordEntrySerializer
 
-class PasswordEntryDetails(generics.RetrieveAPIView):
+class PasswordEntryDetails(generics.RetrieveDestroyAPIView):
     queryset = PasswordEntry.objects.all()
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
     lookup_field = 'id'
     serializer_class = PasswordEntrySerializer
