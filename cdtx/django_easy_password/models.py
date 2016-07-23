@@ -4,6 +4,7 @@ from crum import get_current_user
 
 class PasswordEntry(models.Model):
     user = models.ForeignKey(User)
+    timestamp = models.DateTimeField(auto_now_add=True)
     version = models.PositiveIntegerField()
     name = models.CharField(max_length=50)
     size = models.PositiveIntegerField(default=12)

@@ -61,7 +61,7 @@ $.extend(easy_password.v1.prototype, {
 
     generate : function(key) {
         // Create the unique string from public infos + key
-        input = this.data.name + this.data.numbers + this.data.uppers + this.data.specials + key;
+        input = this.data.name + this.data.version + this.data.timestamp + this.data.numbers + this.data.uppers + this.lowers + this.data.specials + key;
         hashChar = input;
 
         var watchdog = Date.now();

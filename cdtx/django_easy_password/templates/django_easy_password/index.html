@@ -70,7 +70,7 @@
                             </div>
                             {% if user.is_authenticated %}
                             <div class="text-center col-xs-12">
-                                <button class="btn btn-danger" onclick="deleteCurrentPassword()"><i class="fa fa-trash-o" aria-hidden="true"></i>Delete</button>
+                                <button id="bp-confirm-delete" class="btn btn-danger"><i class="fa fa-trash-o" aria-hidden="true"></i>Delete</button>
                             </div>
                             {% endif %}
                         </div>
@@ -178,7 +178,7 @@
     }
     var showModal = function(init) {
         $('#modal-create-password input[name="name"]').val(init.name || '');
-        $('#modal-create-password input[name="size"]').val(init.size || 8);
+        $('#modal-create-password input[name="size"]').val(init.size || 12);
 
         $('#modal-create-password input[name="numbers"]').prop('checked', init.numbers || true);
         $('#modal-create-password input[name="uppers"]').prop('checked', init.uppers || true);
@@ -270,6 +270,13 @@
     var generatePassword = function() {
         $('#passwordbox-generated').val(currentPassword.get_password($('#passwordbox-key').val()));
     }
+
+    $('#bp-confirm-delete').confirm({
+        text: "Really delete this password ?",  
+        confirm: function() {
+            deleteCurrentPassword();
+        }
+    })
 
     var deleteCurrentPassword = function() {
         currentPassword.destroy();
