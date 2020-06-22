@@ -10,7 +10,7 @@ def index(self):
     return render_to_response('django_easy_password/index.html', {'user':self.user})
 
 class myPagination(pagination.PageNumberPagination):
-    page_size = 100
+    page_size = 1000
     page_size_query_param = 'page_size'
     max_page_size = 10000
 
