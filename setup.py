@@ -19,7 +19,6 @@ setup(
     ],
     packages=['cdtx.django_easy_password'],
     package_data={'cdtx.django_easy_password': recursive(['templates', 'static'], rel='cdtx/django_easy_password')},
-    install_requires = ['djangorestframework']
 )
 
 
