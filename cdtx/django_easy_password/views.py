@@ -12,6 +12,7 @@ class PasswordEntryList(generics.ListCreateAPIView):
     queryset = PasswordEntry.objects.all()
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
     serializer_class = PasswordEntrySerializer
+    pagination_class = None
 
 class PasswordEntryDetails(generics.RetrieveDestroyAPIView):
     queryset = PasswordEntry.objects.all()
