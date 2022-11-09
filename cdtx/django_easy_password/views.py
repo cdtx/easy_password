@@ -1,4 +1,4 @@
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 
 from rest_framework import generics
 from rest_framework import permissions
@@ -6,8 +6,9 @@ from rest_framework import pagination
 
 from .serializers import *
 
-def index(self):
-    return render_to_response('django_easy_password/index.html', {'user':self.user})
+def index(request):
+    ret = render(request, 'django_easy_password/index.html', {'user':request.user})
+    return ret
 
 class myPagination(pagination.PageNumberPagination):
     page_size = 1000

@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from crum import get_current_user
 
 class PasswordEntry(models.Model):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
     version = models.PositiveIntegerField()
     name = models.CharField(max_length=50)
